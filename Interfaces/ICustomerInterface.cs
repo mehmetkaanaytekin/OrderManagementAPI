@@ -4,7 +4,7 @@ namespace OrderManagementAPI.Interfaces
 {
     public interface ICustomerInterface
     {
-        Task<Customer> GetCustomerAsync(int CustomerId);
+        Customer GetCustomerAsync(int CustomerId);
         Task<IEnumerable<Customer>> GetAllCustomersAsync();
         Task<int> CreateCustomerAsync(Customer newCustomer);
         Task UpdateCustomerAsync(Customer updateCustomer);

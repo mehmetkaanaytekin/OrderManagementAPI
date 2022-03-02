@@ -53,9 +53,12 @@ namespace OrderManagementAPI.Repositories
             throw new NotImplementedException();
         }
 
-        public Task<Customer> GetCustomerAsync(int CustomerId)
+        public Customer GetCustomerAsync(int orderID)
         {
-            throw new NotImplementedException();
+            int? customerID = _context.Orders.FirstOrDefault(x => x.OrderId == orderID).CustomerId;
+            Customer customer = _context.Customers.FirstOrDefault(x => x.CustomerId == customerID);
+            return customer;
+            
         }
 
         public async Task UpdateCustomerAsync(Customer updateCustomer)

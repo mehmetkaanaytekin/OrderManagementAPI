@@ -29,25 +29,25 @@ namespace OrderManagementAPI.Repositories
         public async Task DeleteProductFromOrder(OrderDetail deleteDetail)
         {
             _context.OrderDetails.Remove(deleteDetail);
+            await _context.SaveChangesAsync();
 
         }
 
         public async Task<IEnumerable<OrderDetail>> GetAllOrderDetailsAsync()
         {
-            throw new NotImplementedException();
+            var orderDetails = await _context.OrderDetails.ToListAsync();
+            return orderDetails;
         }
 
-        public Task<OrderDetail> GetOrderDetailAsync(int orderId)
+        public async Task<List<OrderDetail>> GetOrderDetailAsync(int orderId)
         {
-            throw new NotImplementedException();
+            var orderDetails = await _context.OrderDetails.Where(x => x.OrderId == orderId).ToListAsync();
+            return orderDetails;
         }
 
         public async Task UpdateOrderDetailAsync(OrderDetail updateOrderDetail)
         {
             OrderDetail orderDetail = _context.OrderDetails.FirstOrDefault(x => x.OrderId == updateOrderDetail.OrderId && x.ProductId == updateOrderDetail.ProductId);
-
-
-            // _context.OrderDetails.AsNoTracking().Where(x => x.OrderId == updateOrderDetail.OrderId && x.ProductId == updateOrderDetail.ProductId);
 
             if (orderDetail == null)
             {

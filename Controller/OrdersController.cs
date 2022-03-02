@@ -38,34 +38,34 @@ namespace OrderManagementAPI.Controller
         }
 
         // GET: api/Orders
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Order>>> GetOrders()
+        [HttpGet("GetAllOrders")]
+        public async Task<ActionResult<IEnumerable<Order>>> GetAllOrders()
         {
-            return await _context.Orders.ToListAsync();
+            List<Order> allOrders = await _context.Orders.ToListAsync();
+
+            List<GetOrderDTO> results = new List<GetOrderDTO>();
+
+            foreach (var order in allOrders)
+            {
+                
+                results.Add(await orderRepository.GetOrdersAsDTO(order.OrderId));
+            }
+
+            return Ok(results);
         }
 
         // GET: api/Orders/5
-        [HttpGet("id")]
+        [HttpGet("GetOrderById")]
         public async Task<ActionResult<GetOrderDTO>> GetOrder(int OrderID)
         {
-            var order = (await orderRepository.GetOrderAsync(OrderID));
+            var OrderDTO = await orderRepository.GetOrdersAsDTO(OrderID);
 
-            if (order == null)
-            {
-                return NotFound();
-            }
-
-            var orderDetail = await orderDetailRepository.GetOrderDetailAsync(OrderID);
-            var customer = (await customerRepository.GetCustomerAsync(OrderID)).AsDto;
-            var products = (await productRepository.GetProductAsync(OrderID)).AsDto;
-
-
-            return Ok(order);
+            return Ok(OrderDTO);
         }
 
         // PUT: api/Orders/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("id")]
+        [HttpPut("UpdateExistingOrder")]
         public async Task<IActionResult> PutOrder(int orderID, string customerName, UpdateOrderDTO existingOrder)
         {
             if (orderID != existingOrder.OrderID || customerName != existingOrder.Customer.ContactName)
@@ -119,7 +119,7 @@ namespace OrderManagementAPI.Controller
 
         // POST: api/Orders
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
+        [HttpPost("CreateOrder")]
         public async Task<ActionResult<CreateOrderDTO>> PostOrder(CreateOrderDTO customerOrder)
         {
             Customer newCustomer = new Customer()
@@ -162,11 +162,11 @@ namespace OrderManagementAPI.Controller
                 await orderDetailRepository.CreateOrderDetailAsync(newOrderDetail);
             }
 
-            return CreatedAtAction("GetOrder", new { id = newOrder.OrderId }, newOrder);
+            return CreatedAtAction("GetOrder", new { id = newOrder.OrderId });
         }
 
         // DELETE: api/Orders/5
-        [HttpDelete("id")]
+        [HttpDelete("DeleteOrder")]
         public async Task<IActionResult> DeleteOrder(int OrderID)
         {
             var order = await orderRepository.GetOrderAsync(OrderID);
@@ -181,7 +181,7 @@ namespace OrderManagementAPI.Controller
             return NoContent();
         }
 
-        [HttpDelete("Barcode")]
+        [HttpDelete("RemoveProductFromOrder")]
         public async Task<IActionResult> DeleteProductFromOrder(int OrderID, string Barcode)
         {
             int productID = productRepository.CheckProductExist(Barcode);

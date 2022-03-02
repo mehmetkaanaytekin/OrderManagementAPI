@@ -2,17 +2,51 @@
 using OrderManagementAPI.Data;
 using OrderManagementAPI.Interfaces;
 using OrderManagementAPI.Models;
+using static OrderManagementAPI.Dtos.CustomerDTO;
+using static OrderManagementAPI.Dtos.OrderDTO;
+using static OrderManagementAPI.Dtos.ProductDTO;
 
 namespace OrderManagementAPI.Repositories
 {
     public class OrderRepository : IOrderInterface
     {
         private readonly OrdermanagementContext _context;
+        private readonly OrderDetailRepository orderDetailRepository;
+        private readonly CustomerRepository customerRepository;
+        private readonly ProductRepository productRepository;
 
-        public OrderRepository(OrdermanagementContext context)
+        public OrderRepository(OrdermanagementContext context,
+            OrderDetailRepository orderDetailRepository,
+            CustomerRepository customerRepository,
+            ProductRepository productRepository)
         {
             _context = context;
+            this.orderDetailRepository = orderDetailRepository;
+            this.customerRepository = customerRepository;
+            this.customerRepository = customerRepository;
+            this.productRepository = productRepository;
         }
+
+        public async Task<GetOrderDTO> GetOrdersAsDTO(int OrderID)
+        {
+
+            var order = await GetOrderAsync(OrderID);
+            var orderDetail = await orderDetailRepository.GetOrderDetailAsync(OrderID);
+            GetCustomerDTO customer = (customerRepository.GetCustomerAsync(OrderID)).AsDto();
+
+            List<GetProductDTO> productList = new List<GetProductDTO>();
+
+            foreach (var detail in orderDetail)
+            {
+                productList.Add(productRepository.GetProduct(detail.ProductId).AsDto());
+            }
+
+            GetOrderDTO GetOrder = new GetOrderDTO(OrderID, customer, productList);
+
+            return GetOrder;
+
+        }
+
 
         public async Task<int> CreateOrderAsync(Order newOrder)
         {

@@ -52,9 +52,10 @@ namespace OrderManagementAPI.Repositories
             throw new NotImplementedException();
         }
 
-        public async Task<Product> GetProductAsync(int ProductId)
+        public Product GetProduct(int ProductId)
         {
-            throw new NotImplementedException();
+            Product product = _context.Products.FirstOrDefault(x => x.ProductId == ProductId);
+            return product;
         }
 
         public async Task UpdateProductAsync(Product Product)

@@ -1,4 +1,5 @@
 ﻿using OrderManagementAPI.Models;
+using static OrderManagementAPI.Dtos.OrderDTO;
 
 namespace OrderManagementAPI.Interfaces
 {
@@ -10,5 +11,6 @@ namespace OrderManagementAPI.Interfaces
         Task UpdateOrderAsync(Order updateOrder);
         Task DeleteOrderAsync(Order order);
         bool CheckOrderExist(int orderID);
+        Task<GetOrderDTO> GetOrdersAsDTO(int OrderID);
     }
 }
