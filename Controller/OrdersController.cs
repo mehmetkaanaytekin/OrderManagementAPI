@@ -161,7 +161,7 @@ namespace OrderManagementAPI.Controller
                 await orderDetailRepository.CreateOrderDetailAsync(newOrderDetail);
             }
 
-            return CreatedAtAction("GetOrder", new { id = newOrder.OrderId });
+            return CreatedAtAction("GetOrder", new { OrderID = newOrder.OrderId });
         }
 
         // DELETE: api/Orders/5
