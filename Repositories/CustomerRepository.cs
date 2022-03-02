@@ -57,8 +57,7 @@ namespace OrderManagementAPI.Repositories
         {
             int? customerID = _context.Orders.FirstOrDefault(x => x.OrderId == orderID).CustomerId;
             Customer customer = _context.Customers.FirstOrDefault(x => x.CustomerId == customerID);
-            return customer;
-            
+            return customer;            
         }
 
         public async Task UpdateCustomerAsync(Customer updateCustomer)
@@ -72,7 +71,6 @@ namespace OrderManagementAPI.Repositories
                 _context.Entry(updateCustomer).Property(x => x.Address).IsModified = true;
                 await _context.SaveChangesAsync();
                 _context.Entry(updateCustomer).State = EntityState.Detached;
-
             }            
         }
     }

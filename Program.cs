@@ -4,7 +4,9 @@ using Microsoft.OpenApi.Models;
 using System.Text.Json;
 using System.Net.Mime;
 using OrderManagementAPI.Repositories;
-using OrderManagementAPI.Interfaces;
+using OrderManagementAPI.Data;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using HealthChecks.UI.Client;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,12 +17,19 @@ builder.Services.AddControllers(options =>
     options.SuppressAsyncSuffixInActionNames = false;
 });
 
+builder.Services.AddHealthChecks()
+    .AddSqlServer(
+            connectionString: builder.Configuration["Data:ConnectionStrings:OrderManagementDB"],
+            healthQuery: "SELECT 1;",
+            name: "sql",
+            failureStatus: HealthStatus.Degraded,
+            tags: new string[] { "db", "sql", "sqlserver" });
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Order Management", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "OrderManagementAPI", Version = "v1" });
 });
 
 builder.Services.AddTransient<CustomerRepository>();
@@ -29,20 +38,13 @@ builder.Services.AddTransient<OrderDetailRepository>();
 builder.Services.AddTransient<ProductRepository>();
 
 
-builder.Services.AddDbContext<OrderManagementAPI.Data.OrdermanagementContext>(
+builder.Services.AddDbContext<OrdermanagementContext>(
     options =>
     {
         options.UseSqlServer(builder.Configuration.GetConnectionString("OrderManagementDB"));
         options.EnableSensitiveDataLogging();
     }
     );
-
-builder.Services.AddHealthChecks()
-    .AddSqlServer(
-    builder.Configuration.GetConnectionString("OrderManagementDB"),
-    name: "sqlServer",
-    timeout: TimeSpan.FromSeconds(3),
-    tags: new[] { "ready" });
 
 var app = builder.Build();
 
@@ -52,7 +54,7 @@ if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
     app.UseSwagger();
-    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Order Management v1"));
+    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "OrderManagementAPI v1"));
 }
 
 if (app.Environment.IsDevelopment())
@@ -73,32 +75,14 @@ app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllers();
 
-    endpoints.MapHealthChecks("/health/ready", new HealthCheckOptions
+    endpoints.MapHealthChecks("/healthz", new HealthCheckOptions
     {
-        Predicate = (check) => check.Tags.Contains("ready"),
-        ResponseWriter = async (context, report) =>
-        {
-            var result = JsonSerializer.Serialize(
-                new
-                {
-                    status = report.Status.ToString(),
-                    checks = report.Entries.Select(entry => new
-                    {
-                        name = entry.Key,
-                        status = entry.Value.Status.ToString(),
-                        exception = entry.Value.Exception != null ? entry.Value.Exception.Message : "none",
-                        duration = entry.Value.Duration.ToString()
-                    })
-                }
-            );
-
-            context.Response.ContentType = MediaTypeNames.Application.Json;
-            await context.Response.WriteAsync(result);
-        }
+        Predicate = _ => true,
+        ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
     });
 
-    endpoints.MapHealthChecks("/health/live", new HealthCheckOptions
+    endpoints.MapHealthChecks("/healthz/live", new HealthCheckOptions
     {
-        Predicate = (_) => false
+        Predicate = _ => false
     });
 });

@@ -29,7 +29,6 @@ namespace OrderManagementAPI.Repositories
 
         public async Task<GetOrderDTO> GetOrdersAsDTO(int OrderID)
         {
-
             var order = await GetOrderAsync(OrderID);
             var orderDetail = await orderDetailRepository.GetOrderDetailAsync(OrderID);
             GetCustomerDTO customer = (customerRepository.GetCustomerAsync(OrderID)).AsDto();
@@ -44,7 +43,6 @@ namespace OrderManagementAPI.Repositories
             GetOrderDTO GetOrder = new GetOrderDTO(OrderID, customer, productList);
 
             return GetOrder;
-
         }
 
 
@@ -85,9 +83,6 @@ namespace OrderManagementAPI.Repositories
             if (order == null) return;
             _context.Entry(order).CurrentValues.SetValues(updateOrder);
             await _context.SaveChangesAsync();
-
-
-
         }
 
 

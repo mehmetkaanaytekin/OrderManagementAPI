@@ -30,7 +30,6 @@ namespace OrderManagementAPI.Repositories
         {
             _context.OrderDetails.Remove(deleteDetail);
             await _context.SaveChangesAsync();
-
         }
 
         public async Task<IEnumerable<OrderDetail>> GetAllOrderDetailsAsync()

@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using OrderManagementAPI.Data;
 using OrderManagementAPI.Models;
 using OrderManagementAPI.Repositories;
-using static OrderManagementAPI.Dtos.CustomerDTO;
 using static OrderManagementAPI.Dtos.OrderDTO;
 using static OrderManagementAPI.Dtos.ProductDTO;
 

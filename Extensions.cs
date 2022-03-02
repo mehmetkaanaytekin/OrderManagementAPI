@@ -16,10 +16,5 @@ namespace OrderManagementAPI
         {
             return new GetProductDTO(product.ProductId, product.Barcode, product.Description, product.Price, product.OrderDetails.FirstOrDefault(x => x.ProductId == product.ProductId).Quantity);
         }
-
-       //public static GetOrderDTO AsDto(this Order customerOrder)
-       //{
-       //    return new GetOrderDTO(customerOrder.OrderId, customerOrder.Customer.AsDto(), customerOrder.OrderId);
-       //}
     }
 }
